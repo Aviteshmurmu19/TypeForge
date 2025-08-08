@@ -1,0 +1,16 @@
+{
+  "name": "harshil",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "mathjax-full": "^3.2.2",
+    "puppeteer": "^24.15.0",
+    "serve-handler": "^6.1.6"
+  }
+}

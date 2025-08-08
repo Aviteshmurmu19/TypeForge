@@ -1,0 +1,17 @@
+# -------------------------------------------------------------------
+# Pandoc Default Settings for the Video-to-Text Project
+# -------------------------------------------------------------------
+# This file centralizes all our Pandoc conversion options.
+
+# General Writer Options:
+standalone: true              # Create a full HTML document (with <head>, <body>), not just a fragment.
+embed-resources: true         # Embed images, CSS, etc., into the HTML file to make it self-contained.
+
+# Path Options:
+resource-path:                # List of directories to search for resources like images.
+  - src                       # We tell Pandoc to look inside the 'src' folder.
+css: src/css/mdcss.css        # Path to the CSS file to include.
+
+# This option is now handled by the resource-path above, so we don't need it.
+# However, keeping it here for reference doesn't hurt.
+# file-scope: false

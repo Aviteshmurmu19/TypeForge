@@ -1,0 +1,98 @@
+@import url(https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@400;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap);
+@page {
+  margin: 20mm 20mm 20mm; /* You can use mm, cm, in, or pt */
+}
+:root {
+  --font-main: "Barlow", sans-serif;
+  --font-code: "JetBrains Mono", "Fira Code", monospace;
+  --header-color: #2c3e50;
+  --subheader-color: #34495e;
+  --body-text-color: #333;
+  --code-block-bg: #2d2d2d;
+  --code-block-text: #f0f0f0;
+  --inline-code-bg: #e7e9eb;
+  --inline-code-text: #d63384;
+  --border-color: #eee;
+}
+body {
+  font-family: var(--font-main);
+  line-height: 1.6;
+  color: var(--body-text-color);
+  padding: 20px;
+  margin: 0;
+  background-color: #fff;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-main);
+  margin: 1.5rem 0 1rem 0;
+}
+h1 {
+  font-size: 2.2em;
+  color: var(--header-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+h2 {
+  font-size: 1.8em;
+  color: var(--subheader-color);
+}
+h3 {
+  font-size: 1.4em;
+  color: #455a64;
+}
+pre {
+  background: var(--code-block-bg);
+  color: var(--code-block-text);
+  font-family: var(--font-code);
+  border-radius: 6px;
+  padding: 1em;
+  margin: 1em 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.95em;
+}
+:not(pre) > code {
+  font-family: var(--font-code);
+  background: var(--inline-code-bg);
+  color: var(--inline-code-text);
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5em 0;
+  border: 1px solid #ddd;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+th {
+  background-color: #f8f8f8;
+  font-weight: 700;
+}
+blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1.5em;
+  margin-left: 0;
+  color: #666;
+  font-style: italic;
+}
