@@ -1,7 +1,8 @@
 # -------------------------------------------------------------------
-# Pandoc Default Settings for the Video-to-Text Project
+# Pandoc Default Settings for markdown-to-pdf
 # -------------------------------------------------------------------
-# This file centralizes all our Pandoc conversion options.
+# This file centralizes Pandoc conversion options for the pipeline.
+# Do not add margins here - margins are controlled by render-pdf.js.
 
 # General Writer Options:
 standalone: true              # Create a full HTML document (with <head>, <body>), not just a fragment.

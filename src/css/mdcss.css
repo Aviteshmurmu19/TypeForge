@@ -1,7 +1,4 @@
 @import url(https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@400;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap);
-@page {
-  margin: 20mm 20mm 20mm; /* You can use mm, cm, in, or pt */
-}
 :root {
   --font-main: "Barlow", sans-serif;
   --font-code: "JetBrains Mono", "Fira Code", monospace;

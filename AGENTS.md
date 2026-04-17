@@ -80,7 +80,7 @@ A PowerShell-based tool that converts Markdown files to professional PDFs using 
 ## Notes
 - MathJax supports `$inline$` and `$$display$$` math syntax
 - CSS imports Google Fonts (Barlow, JetBrains Mono)
-- PDF format: A4 with 25mm margins
+- PDF format: A4 with 25mm margins (controlled by render-pdf.js)
 
 ## Known Issues and Fixes
 
@@ -89,10 +89,15 @@ A PowerShell-based tool that converts Markdown files to professional PDFs using 
 
 **Root Cause:** Pandoc doesn't process `\tag` (leaves it as raw TeX), and MathJax's default configuration doesn't handle the `\tag` command properly when processing HTML documents.
 
-**Solution (scripts/prerender-math.js):** Pre-process the HTML to replace `\tag{...}` with `\text{(...)}` before passing to MathJax:
+**Solution (scripts/prerender-math.js):** Pre-process the HTML to replace `\tag{...}` with `\text{(...)}` only inside math spans (scoped regex to avoid corrupting code blocks):
 ```javascript
-// Replace \tag{10} with \text{(10)} before MathJax processing
-htmlfile = htmlfile.replace(/\\tag\{([^}]+)\}/g, "\\text{($1)}");
+// Replace \tag{N} only within <span class="math ..."> blocks
+htmlfile = htmlfile.replace(
+  /(<span[^>]*class="[^"]*math[^"]*"[^>]*>)([\s\S]*?)(<\/span>)/g,
+  (match, open, content, close) => {
+    return open + content.replace(/\\tag\{([^}]+)\}/g, "\\text{($1)}") + close;
+  }
+);
 ```
 
 This transforms `\tag{10}` into `\text{(10)}` which MathJax can render correctly as the tag number appearing inline with the equation.

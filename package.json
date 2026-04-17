@@ -1,17 +1,17 @@
 {
-  "name": "harshil",
+  "name": "markdown-to-pdf",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "Converts Markdown files to PDFs via Pandoc, MathJax, and Puppeteer.",
   "author": "",
   "license": "ISC",
-  "description": "",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node scripts/test-runner.js"
+  },
   "dependencies": {
     "mathjax-full": "^3.2.2",
-    "pandoc": "^0.2.0",
-    "puppeteer": "^24.15.0",
-    "serve-handler": "^6.1.6"
+    "puppeteer": "^24.15.0"
   }
 }

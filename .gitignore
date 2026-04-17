@@ -1,11 +1,11 @@
 src/md trash/
 Trash/
-*/done/
-*/Notes
-src/md/*.md
-output/*.pdf
+Notes
+!scripts/
 logs.txt
-.claude/settings.local.json
+.DS_Store
+Thumbs.db
+*.pdf
 # Logs
 logs
 *.log
@@ -15,22 +15,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-**/node_modules
+node_modules/
 Python
 
 dist
 dist-ssr
 *.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.venv
-__pycache__
+temp/
+output/

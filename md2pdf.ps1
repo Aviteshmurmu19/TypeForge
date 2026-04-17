@@ -2,116 +2,138 @@
 .SYNOPSIS
     Converts all Markdown files from the 'src/md' folder into PDFs in the 'output' folder.
 
-.DESCRIPTION
-    This script automates a professional-grade conversion workflow:
-    1.  Checks if required software (pandoc, node) is installed.
-    2.  Creates 'output' and 'temp' directories if they don't exist.
-    3.  Loops through every .md file in 'src/md/'.
-    4.  For each file, it runs the pandoc -> MathJax -> Puppeteer pipeline.
-    5.  Cleans up all temporary files after completion.
+.PARAMETER MarkdownFolder
+    Path to folder containing .md files. Defaults to 'src/md' relative to script.
+
+.PARAMETER OutputFolder
+    Path to folder for output PDFs. Defaults to 'output' relative to script.
+
+.PARAMETER KeepTemp
+    If set, preserves temp files on failure for debugging.
 
 .NOTES
-    Requires pandoc and Node.js to be installed and in your system's PATH.
-    Run your 'npm install' first. Place this script in the project root.
+    Requires pandoc and Node.js (>=18) to be installed and in your system PATH.
+    Run 'npm install' first.
 #>
 
-# Stop the script immediately if any command fails
+param(
+    [string]$MarkdownFolder = "",
+    [string]$OutputFolder = "",
+    [switch]$KeepTemp
+)
+
 $ErrorActionPreference = "Stop"
 
-# --- 1. Prerequisite Checks ---
+# Anchor all paths to the script's own directory, not the caller's working directory
+$Root = $PSScriptRoot
+if ([string]::IsNullOrEmpty($MarkdownFolder)) { $MarkdownFolder = Join-Path $Root "src/md" }
+if ([string]::IsNullOrEmpty($OutputFolder))   { $OutputFolder   = Join-Path $Root "output" }
+$ScriptsFolder = Join-Path $Root "scripts"
+$TempFolder    = Join-Path $Root "temp"
+
 function Test-Prerequisites {
     Write-Host "Checking for required software..." -ForegroundColor Cyan
     $missing = @()
     if (-not (Get-Command pandoc -ErrorAction SilentlyContinue)) { $missing += "pandoc" }
-    if (-not (Get-Command node -ErrorAction SilentlyContinue)) { $missing += "node" }
-
+    if (-not (Get-Command node   -ErrorAction SilentlyContinue)) { $missing += "node" }
     if ($missing.Count -gt 0) {
-        Write-Host "----------------------------------------------------" -ForegroundColor Red
-        Write-Host "ERROR: Required software is missing or not in your PATH." -ForegroundColor Red
-        $missing | ForEach-Object { Write-Host " - $_" }
-        Write-Host "Please install the missing software and try again." -ForegroundColor Red
-        Write-Host "----------------------------------------------------"
+        Write-Host "ERROR: Missing required tools: $($missing -join ', ')" -ForegroundColor Red
         return $false
     }
     Write-Host "All required software found." -ForegroundColor Green
     return $true
 }
 
-# --- 2. Define Folder Paths ---
-$ScriptsFolder = "scripts"
-$MarkdownFolder = "src/md"
-$CssFile = "src/css/mdcss.css"
-$OutputFolder = "output"
-$TempFolder = "temp"
-
-# --- 3. Main Execution Block ---
-if (-not (Test-Prerequisites)) {
-    Read-Host -Prompt "Press Enter to exit"
-    exit 1
-}
-
-try {
-    # Create necessary directories
-    Write-Host "Setting up project directories..."
-    New-Item -ItemType Directory -Path $OutputFolder -Force | Out-Null
-    New-Item -ItemType Directory -Path $TempFolder -Force | Out-Null
-
-    # Find all Markdown files to process
-    $markdownFiles = Get-ChildItem -Path $MarkdownFolder -Filter *.md
-    if ($markdownFiles.Count -eq 0) {
-        throw "No Markdown files found in '$MarkdownFolder'. Nothing to convert."
+function Assert-LastExitCode {
+    param([string]$StepName)
+    if ($LASTEXITCODE -ne 0) {
+        throw "$StepName failed with exit code $LASTEXITCODE"
     }
+}
 
-    Write-Host "Found $($markdownFiles.Count) Markdown file(s) to convert."
-
-    # Loop through each Markdown file
-    foreach ($file in $markdownFiles) {
-        $BaseName = $file.BaseName
-        $InputFile = $file.FullName
-        
-        Write-Host "--- Starting conversion for '$($file.Name)' ---" -ForegroundColor Yellow
-
-        # Define file paths for the current loop iteration
-        $TempHtml1 = Join-Path $TempFolder "$($BaseName)_step1.html"
-        $TempHtml2 = Join-Path $TempFolder "$($BaseName)_step2.html"
-        $FinalPdf = Join-Path $OutputFolder "$($BaseName).pdf"
-
-        # Step A: Run Pandoc
-        Write-Host "  (1/3) Converting Markdown to HTML with Pandoc..."
-        pandoc $InputFile -o $TempHtml1 --defaults defaults.yaml
-        
-        # Step B: Pre-render MathJax with Node.js
-        Write-Host "  (2/3) Pre-rendering LaTeX math with MathJax..."
-        node (Join-Path $ScriptsFolder "prerender-math.js") $TempHtml1 $TempHtml2
-        
-        # Step C: Generate PDF with Puppeteer (Node.js)
-        Write-Host "  (3/3) Generating final PDF with Puppeteer..."
-        node (Join-Path $ScriptsFolder "render-pdf.js") $TempHtml2 $FinalPdf
-
-        Write-Host "--- Successfully created '$FinalPdf' ---" -ForegroundColor Green
+function Assert-FileExists {
+    param([string]$FilePath, [string]$StepName)
+    if (-not (Test-Path $FilePath) -or (Get-Item $FilePath).Length -eq 0) {
+        throw "$StepName did not produce output file: $FilePath"
     }
-    
-    Write-Host "===================================================="
-    Write-Host "All conversions complete!" -ForegroundColor Green
-    Write-Host "===================================================="
+}
 
+if (-not (Test-Prerequisites)) { exit 1 }
+
+New-Item -ItemType Directory -Path $OutputFolder -Force | Out-Null
+New-Item -ItemType Directory -Path $TempFolder   -Force | Out-Null
+
+$markdownFiles = Get-ChildItem -Path $MarkdownFolder -Filter *.md
+if ($markdownFiles.Count -eq 0) {
+    Write-Host "No Markdown files found in '$MarkdownFolder'." -ForegroundColor Yellow
+    exit 0
 }
-catch {
-    # If any command fails, this block will run
-    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Red
-    Write-Host "An error occurred during the conversion process:" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Red
-}
-finally {
-    # This block ALWAYS runs, ensuring cleanup happens
-    Write-Host "Cleaning up temporary files..."
-    if (Test-Path $TempFolder) {
-        Remove-Item -Recurse -Path $TempFolder -Force
-        Write-Host "Removed temporary directory: '$TempFolder'"
+
+Write-Host "Found $($markdownFiles.Count) Markdown file(s) to convert."
+
+$successCount = 0
+$failCount    = 0
+$failedFiles  = @()
+
+foreach ($file in $markdownFiles) {
+    $BaseName   = $file.BaseName
+    $InputFile  = $file.FullName
+    $TempHtml1  = Join-Path $TempFolder "$($BaseName)_step1.html"
+    $TempHtml2  = Join-Path $TempFolder "$($BaseName)_step2.html"
+    $FinalPdf   = Join-Path $OutputFolder "$($BaseName).pdf"
+
+    Write-Host "--- Converting '$($file.Name)' ---" -ForegroundColor Yellow
+
+    $fileSuccess = $false
+
+    try {
+        # Step 1: Pandoc
+        Write-Host "  (1/3) Pandoc: Markdown -> HTML"
+        pandoc "$InputFile" -o "$TempHtml1" --defaults "$Root/defaults.yaml"
+        Assert-LastExitCode "Pandoc"
+        Assert-FileExists $TempHtml1 "Pandoc"
+
+        # Step 2: MathJax
+        Write-Host "  (2/3) MathJax: Pre-rendering math"
+        node (Join-Path $ScriptsFolder "prerender-math.js") "$TempHtml1" "$TempHtml2"
+        Assert-LastExitCode "MathJax prerender"
+        Assert-FileExists $TempHtml2 "MathJax prerender"
+
+        # Step 3: Puppeteer
+        Write-Host "  (3/3) Puppeteer: Generating PDF"
+        node (Join-Path $ScriptsFolder "render-pdf.js") "$TempHtml2" "$FinalPdf"
+        Assert-LastExitCode "Puppeteer PDF"
+        Assert-FileExists $FinalPdf "Puppeteer PDF"
+
+        Write-Host "  Done: '$FinalPdf'" -ForegroundColor Green
+        $fileSuccess = $true
+        $successCount++
+
+    } catch {
+        Write-Host "  FAILED: $($_.Exception.Message)" -ForegroundColor Red
+        $failCount++
+        $failedFiles += $file.Name
+
+        if ($KeepTemp) {
+            Write-Host "  Temp files preserved in: $TempFolder" -ForegroundColor Yellow
+        }
+    } finally {
+        # Clean temp for THIS file only if it succeeded (and KeepTemp not set)
+        if ($fileSuccess -and -not $KeepTemp) {
+            Remove-Item -Path $TempHtml1 -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $TempHtml2 -Force -ErrorAction SilentlyContinue
+        }
     }
-    Write-Host "Cleanup complete."
 }
 
-# Pause the script at the very end so the user can see the result
-Read-Host -Prompt "Process finished. Press Enter to exit"
+# Summary
+Write-Host "===================================================="
+Write-Host "Completed: $successCount succeeded, $failCount failed." -ForegroundColor $(if ($failCount -eq 0) { "Green" } else { "Yellow" })
+if ($failedFiles.Count -gt 0) {
+    Write-Host "Failed files:" -ForegroundColor Red
+    $failedFiles | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+}
+Write-Host "===================================================="
+
+# Exit with non-zero if any file failed - CI can detect this
+if ($failCount -gt 0) { exit 1 }
