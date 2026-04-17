@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "mathjax-full": "^3.2.2",
+    "pandoc": "^0.2.0",
     "puppeteer": "^24.15.0",
     "serve-handler": "^6.1.6"
   }

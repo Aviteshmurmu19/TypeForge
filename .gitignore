@@ -1,8 +1,11 @@
 src/md trash/
 Trash/
+*/done/
+*/Notes
+src/md/*.md
+output/*.pdf
 logs.txt
-Decision Analysis.md
-Decision Analysis.pdf
+.claude/settings.local.json
 # Logs
 logs
 *.log
