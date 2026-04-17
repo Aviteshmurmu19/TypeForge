@@ -45,6 +45,16 @@ npm test
 - Inline: `$x^2$` or `\(x^2\)`
 - Display: `$$x^2$$` or `\[x^2\]`
 
+## Including Images
+
+Use Markdown image syntax to embed images in PDFs:
+
+```markdown
+![Image Caption](src/img/image.jpg)
+```
+
+Do not use link syntax `[text](path)` - images will not render.
+
 ## PDF Format
 
 - A4, 25mm margins on all sides

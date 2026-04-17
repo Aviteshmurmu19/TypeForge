@@ -5,6 +5,7 @@ Notes
 logs.txt
 src/md/*.md
 .claude/settings.local.json
+src/img/*.jpg
 src/done
 .DS_Store
 Thumbs.db

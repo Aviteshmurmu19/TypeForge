@@ -81,6 +81,7 @@ A PowerShell-based tool that converts Markdown files to professional PDFs using 
 - MathJax supports `$inline$` and `$$display$$` math syntax
 - CSS imports Google Fonts (Barlow, JetBrains Mono)
 - PDF format: A4 with 25mm margins (controlled by render-pdf.js)
+- Images: Use `![caption](src/img/image.jpg)` syntax - not `[link](path)`
 
 ## Known Issues and Fixes
 
