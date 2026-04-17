@@ -3,6 +3,9 @@ Trash/
 Notes
 !scripts/
 logs.txt
+src/md/*.md
+.claude/settings.local.json
+src/done
 .DS_Store
 Thumbs.db
 *.pdf
@@ -22,4 +25,5 @@ dist
 dist-ssr
 *.local
 temp/
-output/
+output/*.pdf
+output/Done
