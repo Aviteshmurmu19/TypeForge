@@ -23,6 +23,21 @@ const fs = require("fs");
 
     let htmlfile = fs.readFileSync(inputFile, "utf8");
 
+    // Handle image width attributes from markdown: ![caption](img.jpg){width=80%}
+    // Converts to <img width="80%" ...>
+    htmlfile = htmlfile.replace(
+      /<img([^>]*)width="([^"]*)"([^>]*)>/g,
+      '<img$1$3 width="$2">'
+    );
+    htmlfile = htmlfile.replace(
+      /<img([^>]*)data-width="([^"]*)"([^>]*)>/g,
+      '<img$1$3 width="$2">'
+    );
+    htmlfile = htmlfile.replace(
+      /<img([^>]*)\s+width=("|')?([^}"']+)("|')?([^>]*)>/gi,
+      '<img$1 width="$3"$5>'
+    );
+
     // SCOPED tag replacement: only inside math spans, not global HTML
     // This replaces \tag{N} only within <span class="math ..."> blocks
     htmlfile = htmlfile.replace(

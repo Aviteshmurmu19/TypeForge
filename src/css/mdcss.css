@@ -69,6 +69,18 @@ pre code {
 img {
   max-width: 100%;
   height: auto;
+  display: block;
+  margin: 1em auto;
+}
+figure {
+  margin: 1.5em 0;
+  page-break-inside: avoid;
+}
+figcaption {
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 0.5em;
 }
 table {
   border-collapse: collapse;

@@ -82,6 +82,7 @@ A PowerShell-based tool that converts Markdown files to professional PDFs using 
 - CSS imports Google Fonts (Barlow, JetBrains Mono)
 - PDF format: A4 with 25mm margins (controlled by render-pdf.js)
 - Images: Use `![caption](src/img/image.jpg)` syntax - not `[link](path)`
+- Image width: Use `<img src="..." width="80%" alt="...">` HTML for resizing
 
 ## Known Issues and Fixes
 

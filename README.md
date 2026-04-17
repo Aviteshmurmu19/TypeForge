@@ -55,6 +55,16 @@ Use Markdown image syntax to embed images in PDFs:
 
 Do not use link syntax `[text](path)` - images will not render.
 
+### Image Width
+
+To control image size, use raw HTML with width attribute:
+
+```html
+<img src="src/img/graph.jpg" width="80%" alt="Description">
+```
+
+This reduces the image to 80% of page width, allowing multiple images to fit on one page. The aspect ratio is preserved automatically.
+
 ## PDF Format
 
 - A4, 25mm margins on all sides
