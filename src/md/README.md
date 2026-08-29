@@ -76,25 +76,15 @@ Place `.md` files in `src/md/`, then run:
 
 > `\tag{}` is automatically converted to `\text{(...)}` inside math spans to avoid MathJax rendering errors. Code blocks are left untouched.
 
-## Including Images
-
-Use standard Markdown image syntax:
-
-```markdown
-![Caption](src/img/photo.jpg)
-```
-
-For width control, use raw HTML attributes:
-
-```html
-<img src="src/img/graph.jpg" width="80%" alt="Description">
-```
-
-> **Note:** Images must be in the `src/` directory or a subdirectory. Pandoc resolves paths relative to `resource-path` configured in `defaults.yaml`.
-
 ## Example Image
 
 ![A gray cat with yellow eyes looking to the left](src/img/cat.jpg)
+
+Use standard Markdown image syntax to embed the image:
+
+```markdown
+![Caption](src/img/cat.jpg)
+```
 
 ## PDF Format
 
