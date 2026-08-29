@@ -92,6 +92,10 @@ For width control, use raw HTML attributes:
 
 > **Note:** Images must be in the `src/` directory or a subdirectory. Pandoc resolves paths relative to `resource-path` configured in `defaults.yaml`.
 
+## Example Image
+
+![A gray cat with yellow eyes looking to the left](src/img/cat.jpg)
+
 ## PDF Format
 
 - **Size:** A4
@@ -131,13 +135,6 @@ The script intentionally uses a minimal TeX package set. Warnings about `newcomm
 
 **"Fonts look wrong offline"**
 Google Fonts are embedded via `embed-resources: true` in `defaults.yaml`, but MathJax CHTML fonts still load from CDN. Offline builds may fall back to system fonts for math glyphs.
-
-## Example
-
-A sample Markdown file and its generated PDF are included in the repo:
-
-- Source: `src/md/README.md`
-- Output: `output/README.pdf`
 
 ## Configuration
 
