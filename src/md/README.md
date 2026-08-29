@@ -76,15 +76,21 @@ Place `.md` files in `src/md/`, then run:
 
 > `\tag{}` is automatically converted to `\text{(...)}` inside math spans to avoid MathJax rendering errors. Code blocks are left untouched.
 
-## Example Image
+## Including Images
 
-![A gray cat with yellow eyes looking to the left](src/img/cat.jpg)
-
-Use standard Markdown image syntax to embed the image:
+Use standard Markdown image syntax:
 
 ```markdown
-![Caption](src/img/cat.jpg)
+![Caption](src/img/photo.jpg)
 ```
+
+For width control, use raw HTML attributes:
+
+```html
+<img src="src/img/graph.jpg" width="80%" alt="Description">
+```
+
+> **Note:** Images must be in the `src/` directory or a subdirectory. Pandoc resolves paths relative to `resource-path` configured in `defaults.yaml`.
 
 ## PDF Format
 
@@ -125,6 +131,13 @@ The script intentionally uses a minimal TeX package set. Warnings about `newcomm
 
 **"Fonts look wrong offline"**
 Google Fonts are embedded via `embed-resources: true` in `defaults.yaml`, but MathJax CHTML fonts still load from CDN. Offline builds may fall back to system fonts for math glyphs.
+
+## Example
+
+A sample Markdown file and its generated PDF are included in the repo:
+
+- Source: [`src/md/README.md`](src/md/README.md)
+- Output: [`output/README.pdf`](output/README.pdf)
 
 ## Configuration
 
