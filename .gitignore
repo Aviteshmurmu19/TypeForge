@@ -3,10 +3,26 @@ Trash/
 Notes
 !scripts/
 logs.txt
-src/md/*.md
+src/**/*.md
 .claude/settings.local.json
-src/img/*.jpg
+src/**/*.jpg
+src/**/*.png
+src/**/*.gif
+src/**/*.json
+src/**/*.lnk
+src/**/*.pdf
+output/**/*.jpg
+output/**/*.png
+output/**/*.gif
+output/**/*.json
+output/**/*.lnk
+output/**/*.pdf
+src/md/markdown-here.wiki/
+engineering-self-study-notes/
 src/done
+github/
+chats/
+
 .DS_Store
 Thumbs.db
 *.pdf
@@ -18,6 +34,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+old/
 
 node_modules/
 Python

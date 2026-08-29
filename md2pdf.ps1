@@ -89,7 +89,13 @@ foreach ($file in $markdownFiles) {
     try {
         # Step 1: Pandoc
         Write-Host "  (1/3) Pandoc: Markdown -> HTML"
-        pandoc "$InputFile" -o "$TempHtml1" --defaults "$Root/defaults.yaml"
+        $DefaultsPath = Join-Path $Root "defaults.yaml"
+        $CssPath      = Join-Path $Root "src/css/mdcss.css"
+        pandoc "$InputFile" -o "$TempHtml1" `
+          --defaults="$DefaultsPath" `
+          --resource-path="$ResourcePath" `
+          --css="$CssPath" `
+          --mathjax
         Assert-LastExitCode "Pandoc"
         Assert-FileExists $TempHtml1 "Pandoc"
 

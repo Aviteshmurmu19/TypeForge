@@ -11,13 +11,21 @@ const path = require("path");
   const outputFile = process.argv[3];
 
   console.log("Launching headless browser...");
-  const browser = await launch({ headless: true });
+  const winChromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+  const fs = require("fs");
+  const launchOptions = { headless: true, args: ['--allow-file-access-from-files', '--disable-web-security'] };
+  if (fs.existsSync(winChromePath)) {launchOptions.executablePath = winChromePath;}
+  
+  // Custom launch configuration pointing to your local Chrome
+  const browser = await launch(launchOptions);
 
   try {
     const page = await browser.newPage();
     console.log(`Navigating to local file: ${inputFile}`);
-
     await page.goto(inputFile, { waitUntil: "networkidle0", timeout: 30000 });
+
+    console.log("Waiting for fonts/rendering...");
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     console.log("Generating PDF...");
     await page.pdf({

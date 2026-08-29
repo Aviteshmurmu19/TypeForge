@@ -1,105 +1,34 @@
-# Markdown-to-PDF Converter
+# TypeForge
 
-## ⚠ Maintaining AGENTS.md - Rules and Guidelines
+## Prerequisites
+- Node.js >= 18 (`npm install`)
+- Pandoc (system install, in PATH)
+- PowerShell (`pwsh` or `powershell`)
 
-This file is the **single source of truth** for AI agents working on this project. To prevent conflicting information and chaos, follow these rules:
+## Commands
+- `.\md2pdf.ps1` - Convert all `src/md/*.md` to `output/*.pdf`
+  - Params: `-MarkdownFolder`, `-OutputFolder`, `-KeepTemp`
+  - Paths are anchored to `$PSScriptRoot`, not the caller's CWD
+- `npm test` runs `scripts/test-runner.js` (10 tests). It includes regression tests that enforce the `@mathjax/src` import path, display-math block wrapper, `--mathjax` Pandoc flag, Chrome file-access flags, and end-to-end PDF generation.
 
-### Rules for Reading
-1. **Always read AGENTS.md first** before making any changes or answering questions about the project
-2. Check the entire file for existing information - don't assume it's not there
-3. If the file seems outdated, verify by checking the actual source code
+## Pipeline
+`md2pdf.ps1` processes each `.md` file in sequence:
+1. **Pandoc** (`md2pdf.ps1:90-99`) → `temp/<file>_step1.html` using `defaults.yaml`
+2. **MathJax** (`md2pdf.ps1:102-105`) → `temp/<file>_step2.html` via `scripts/prerender-math.js`
+3. **Puppeteer** (`md2pdf.ps1:108-111`) → `output/<file>.pdf` via `scripts/render-pdf.js`
 
-### Rules for Creating (New Sections)
-1. Only add new sections if the information doesn't fit existing categories
-2. Use clear, descriptive headers that match the content
-3. Add new sections at the appropriate location (not arbitrarily)
-4. If unsure where to place information, add to "Notes" section
+Temp files are auto-deleted on success. Use `-KeepTemp` to preserve them for debugging.
 
-### Rules for Updating/Editing
-1. **Verify before editing** - read the relevant section and surrounding context
-2. **Preserve existing correct information** - don't remove unless it's wrong or outdated
-3. **Update only what's necessary** - don't rewrite entire sections for minor changes
-4. **Keep formatting consistent** - follow the existing style (tables, code blocks, etc.)
-5. **If fixing a bug**, document it in "Known Issues and Fixes" section with:
-   - Problem description
-   - Root cause
-   - Solution with code reference
+## Repo-Specific Quirks
+- `defaults.yaml` uses `embed-resources: true`, inlining base64 Google Fonts. This produces ~3MB HTML files.
+- `md2pdf.ps1:94-98` passes `--mathjax` to Pandoc so raw TeX delimiters survive into HTML. Without this, Pandoc 3.x renders math to HTML entities that MathJax cannot re-parse.
+- `scripts/prerender-math.js` uses `@mathjax/src` v4 with the same synchronous `mathjax.document(...)` API as v3. Do not switch back to the bundled `mathjax` package; its Node.js bundle has a Webpack scoping bug.
+- `scripts/prerender-math.js:43-48` replaces `\tag{N}` with `\text{(N)}` inside math spans only (scoped regex; code blocks are untouched). This works around a MathJax limitation where `\tag{}` is not handled by default HTML configuration.
+- `scripts/prerender-math.js:88-92` rewrites `<span class="math display">` to `<div class="math display" style="display:block;text-align:center;margin:1rem auto">` after rendering, because Pandoc nests display math inside inline spans.
+- `scripts/render-pdf.js:16` launches Chrome with `--allow-file-access-from-files --disable-web-security` so local HTML can load MathJax fonts from `node_modules` without CORS failures.
+- `render-pdf.js` uses system Chrome (`C:\Program Files\Google\Chrome\Application\chrome.exe`) if present, otherwise Puppeteer's bundled Chromium.
+- PDF format is A4 with 25mm margins, controlled in `render-pdf.js:28-37`, not in `defaults.yaml`.
+- `src/md/*.md` and `output/*.pdf` are gitignored.
+- `render-pdf.js` uses `networkidle0` with a 30s timeout; if HTML has unresolved external resources, PDF generation times out.
+- `src/css/mdcss.css` is optional; if missing, Pandoc falls back to default styling and the script continues.
 
-### Rules for Deleting
-1. **Never delete** - only mark as outdated if something is deprecated
-2. If a solution is no longer valid, mark it but keep the history for reference
-
-### Anti-Patterns (Don't Do)
-- ❌ Adding duplicate information in multiple places
-- ❌ Overwriting existing correct solutions with "newer" ideas
-- ❌ Making changes without reading the file first
-- ❌ Writing long explanations when a simple code reference suffices
-- ❌ Removing historical fixes (they may be needed again)
-
----
-
-## Project Overview
-A PowerShell-based tool that converts Markdown files to professional PDFs using a 3-step pipeline: Pandoc to MathJax to Puppeteer.
-
-## Quick Start
-```powershell
-./md2pdf.ps1
-```
-- Input: `src/md/*.md` files
-- Output: `output/*.pdf` files
-
-## Architecture
-
-### Pipeline (md2pdf.ps1:79-89)
-1. **Pandoc** - Converts Markdown to HTML using `defaults.yaml`
-2. **MathJax** - Pre-renders LaTeX math equations (`scripts/prerender-math.js`)
-3. **Puppeteer** - Generates final PDF (`scripts/render-pdf.js`)
-
-### Key Files
-| File | Purpose |
-|------|---------|
-| `md2pdf.ps1` | Main orchestrator script |
-| `defaults.yaml` | Pandoc configuration (standalone HTML, CSS path) |
-| `scripts/prerender-math.js` | Converts `$...$` and `$$...$$` to MathML |
-| `scripts/render-pdf.js` | Headless Chrome PDF generation |
-| `src/css/mdcss.css` | PDF styling (Barlow font, code blocks, tables) |
-
-### Dependencies (package.json)
-- `mathjax-full` - LaTeX math rendering
-- `puppeteer` - Browser automation
-- `pandoc` - Markdown to HTML (must be installed separately)
-
-## Folder Structure
-- `src/md/` - Input Markdown files
-- `src/css/` - CSS styling
-- `src/img/` - Image assets
-- `output/` - Generated PDFs
-- `scripts/` - Node.js helper scripts
-- `src/done/`, `src/md trash/`, `Trash/` - Ignored folders
-
-## Notes
-- MathJax supports `$inline$` and `$$display$$` math syntax
-- CSS imports Google Fonts (Barlow, JetBrains Mono)
-- PDF format: A4 with 25mm margins (controlled by render-pdf.js)
-- Images: Use `![caption](src/img/image.jpg)` syntax - not `[link](path)`
-- Image width: Use `<img src="..." width="80%" alt="...">` HTML for resizing
-
-## Known Issues and Fixes
-
-### Equation `\tag{}` Not Rendering
-**Problem:** Using `\tag{num}` in equations (e.g., `$$\beta = x \tag{10}$$`) shows "Undefined control sequence \tag" in the PDF.
-
-**Root Cause:** Pandoc doesn't process `\tag` (leaves it as raw TeX), and MathJax's default configuration doesn't handle the `\tag` command properly when processing HTML documents.
-
-**Solution (scripts/prerender-math.js):** Pre-process the HTML to replace `\tag{...}` with `\text{(...)}` only inside math spans (scoped regex to avoid corrupting code blocks):
-```javascript
-// Replace \tag{N} only within <span class="math ..."> blocks
-htmlfile = htmlfile.replace(
-  /(<span[^>]*class="[^"]*math[^"]*"[^>]*>)([\s\S]*?)(<\/span>)/g,
-  (match, open, content, close) => {
-    return open + content.replace(/\\tag\{([^}]+)\}/g, "\\text{($1)}") + close;
-  }
-);
-```
-
-This transforms `\tag{10}` into `\text{(10)}` which MathJax can render correctly as the tag number appearing inline with the equation.
