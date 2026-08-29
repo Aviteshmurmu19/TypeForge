@@ -136,8 +136,8 @@ Google Fonts are embedded via `embed-resources: true` in `defaults.yaml`, but Ma
 
 A sample Markdown file and its generated PDF are included in the repo:
 
-- Source: `src/md/README.md`
-- Output: `output/README.pdf`
+- Source: [`src/md/README.md`](src/md/README.md)
+- Output: [`output/README.pdf`](output/README.pdf)
 
 ## Configuration
 
